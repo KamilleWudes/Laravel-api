@@ -13,15 +13,12 @@ class article extends Model
     protected $fillable = [
       'titre',
       'contenu',
-      'image',
+      'content',
       'categorie_id',
-      'user_id'
+      'imageName',
     ];
 
     Public function categories(){
         return $this->belongsTo(categorie::class,"categorie_id","id");
-      }
-      Public function users(){
-        return $this->belongsTo(User::class,"user_id","id");
       }
 }

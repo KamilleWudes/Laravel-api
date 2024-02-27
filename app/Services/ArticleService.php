@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+
 use Exception;
 use Illuminate\Http\Request;
 use App\Repositories\ArticleRepository;
@@ -23,20 +24,19 @@ class ArticleService
      */
     public function getAll()
     {
-       $articles = $this->ArticleRepository->getAll();
-       if($articles->count() > 0){
-        return response()->json([
-            "status"=> 200,
-            "articles" => $articles,
-        ],200);
-       }else{
-        return response()->json([
-            'status' =>404 ,
-            'message'=>'Aucune article n’a été trouvée !',
-        ],404);
-
+        $articles = $this->ArticleRepository->getAll();
+        if ($articles->count() > 0) {
+            return response()->json([
+                "status" => 200,
+                "articles" => $articles,
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Aucune article n’a été trouvée !',
+            ], 404);
+        }
     }
-}
 
     /**
      * Store a newly created resource in storage.
@@ -44,39 +44,26 @@ class ArticleService
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
 
-        $validator = Validator::make($request->all(), [
-            'titre' => ['required', 'min:3'],
-            'contenu'=>['required','min:5'],
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'categorie_id' => 'required',
-            'user_id' => 'required'    ]);
+        $result = ["status" => 200, "message" => "Opération effectuée avec succès."];
+        try {
+            $dataArticle = $request->only([
+                'titre',
+                'contenu',
+                'categorie_id'
+            ]);
+            $image = $request['content'];
+            $content = $image->getClientOriginalName();
+            $imageName = Str::beforeLast($content, '.');
+            $dataArticle['imageName'] = $imageName;
+            $dataArticle['content'] = base64_encode(file_get_contents($image));
 
-    // Vérifier s'il y a des erreurs de validation
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 400,
-            'error' => $validator->errors()->first(),
-        ]);
-    }
-        $result = ["status"=>200 , "message"=>"Opération effectuée avec succès."];
-
-        $imageName = Str::random(32).'.'. $request->image->getClientOriginalExtension();
-
-        
-        $dataArticle["titre"] = $request['titre'];
-        $dataArticle["contenu"] = $request['contenu'];
-        $dataArticle["image"] = $imageName;
-        $dataArticle["categorie_id"] = $request['categorie_id'];
-        $dataArticle["user_id"] = $request['user_id'];
-
-        try{
             $result['data'] = $this->ArticleRepository->save($dataArticle);
-             //Save Image in Storage folder
-             Storage::disk('public')->put($imageName, file_get_contents($request->image));
+            //Save Image in Storage folder
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $result = [
                 'status' => 500,
                 'error' => $e->getMessage()
@@ -87,116 +74,96 @@ class ArticleService
 
     public function show($id)
     {
-        $articles = $this->ArticleRepository->find($id);
-        if($articles)
-        {
+        $article = $this->ArticleRepository->getByIdWithCategories($id);
+
+        if ($article) {
+            // Récupérer le nom de la catégorie
+            $categoryName = $article->categories->libelle; // Supposons que 'name' soit le nom de la colonne contenant le libellé de la catégorie
+
+            // Ajouter le libellé de la catégorie à la variable $article
+            $article->category_name = $categoryName;
+
+            // Retourner la réponse JSON avec la variable $article mise à jour
             return response()->json([
                 'status' => 200,
-                'articles'=> $articles
-            ],200);
-
-        }else{
+                'article' => $article,
+            ], 200);
+        } else {
             return response()->json([
-                'status' =>404 ,
-                'messages'=>'Article Introuvable',
-            ],404);
+                'status' => 404,
+                'message' => 'Article Introuvable',
+            ], 404);
         }
     }
 
     public function edit($id)
     {
-        $articles = $this->ArticleRepository->find($id);
-        if($articles)
-        {
+        $article = $this->ArticleRepository->find($id);
+        if ($article) {
             return response()->json([
                 'status' => 200,
-                'articles'=> $articles
-            ],200);
-
-        }else{
-            return response()->json([
-                'status' =>404 ,
-                'messages'=>'Articles Introuvable',
-            ],404);
-        }
-    }
-    public function update(Request $request, $id) {
-
-        $validator = Validator::make($request->all(), [
-            'titre' => ['required', 'min:3'],
-            'contenu'=>['required','min:5'],
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'categorie_id' => 'required',
-            'user_id' => 'required'
-        ]);
-    
-        // Vérifier s'il y a des erreurs de validation
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 400,
-                'error' => $validator->errors()->first(),
-            ]);
-        }
-    
-        $article = $this->ArticleRepository->find($id);
-    
-        if (!$article) {
+                'articles' => $article
+            ], 200);
+        } else {
             return response()->json([
                 'status' => 404,
-                'error' => 'Article introuvable'
+                'messages' => 'Articles Introuvable',
             ], 404);
         }
-    
-        $dataArticle["titre"] = $request['titre'];
-        $dataArticle["contenu"] = $request['contenu'];
-        $dataArticle["categorie_id"] = $request['categorie_id'];
-        $dataArticle["user_id"] = $request['user_id'];
-    
-        // Vérifier si une nouvelle image est fournie
-        if ($request->hasFile('image')) {
-            $imageName = Str::random(32).'.'. $request->image->getClientOriginalExtension();
-            $dataArticle['image'] = $imageName;
-    
-            // Enregistrer l'image dans le dossier de stockage
-            Storage::disk('public')->put($imageName, file_get_contents($request->image));
+    }
+    public function update(Request $request, $id)
+    {
+
+        $result = [
+            'status' => 200,
+            'message' => 'Article mis à jour avec succès'
+        ];
+        $article = $this->ArticleRepository->getByIdWithCategories($id);
+
+        if (is_null($article)) {
+            return response()->json(['message' => "Cette Information  n'existe pas", 'status' => 404]);
         }
-    
-        try {
-            $this->ArticleRepository->update($dataArticle, $id);
-            $result = [
-                'status' => 200,
-                'message' => 'Article mis à jour avec succès'
-            ];
-        } catch (Exception $e) {
-            $result = [
-                'status' => 500,
-                'error' => $e->getMessage()
-            ];
+
+
+        $dataArticle = $request->only(['titre', 'contenu', 'categorie_id']);
+        if ($request->file('content')) {
+            // Le contenu est un fichier valide
+            $image = $request->file('content');
+            $article_image = $image->getClientOriginalName();
+            $imageName = Str::beforeLast($article_image, '.');
+            $dataArticle['imageName'] = $imageName;
+            $dataArticle['content'] = base64_encode(file_get_contents($image));
+        } else {
+            $dataArticle['content'] = $article->content;
+            $dataArticle['imageName'] = $article->imageName;
         }
-    
+
+        $this->ArticleRepository->update($dataArticle, $id);
+        $article = $this->ArticleRepository->getByIdWithCategories($id);
+        $categoryName = $article->categories->libelle; // Supposons que 'name' soit le nom de la colonne contenant le libellé de la catégorie
+        // Ajouter le libellé de la catégorie à la variable $article
+        $article->category_name = $categoryName;
+        $result['data'] = $article;
+
         return response()->json($result);
     }
-    
+
 
     public function delete($id)
     {
-        $articles = $this->ArticleRepository->find($id);
-        if($articles)
-        {
-            $data = $this->ArticleRepository->delete($id);
+        $article = $this->ArticleRepository->find($id);
+        if ($article) {
+            $this->ArticleRepository->delete($id);
 
             return response()->json([
                 'status' => 200,
-                'messages'=> 'Article supprimé avec succès'
-            ],200);
-
-        }else{
+                'messages' => 'Article supprimé avec succès'
+            ], 200);
+        } else {
             return response()->json([
-                'status' =>404 ,
-                'messages'=>'Article Introuvable',
-            ],404);
+                'status' => 404,
+                'messages' => 'Article Introuvable',
+            ], 404);
         }
     }
-    
 }
-

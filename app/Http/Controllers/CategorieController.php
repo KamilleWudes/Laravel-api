@@ -17,13 +17,13 @@ class CategorieController extends Controller
     // public function index()
     // {
     //     $categories = categorie::all();
-        
+
     //     if($categories->count()>0){
     //         return response()->json([
     //             'data'=>$categories,
     //             'status'=>200
     //         ],200);
-            
+
     //     }else{
     //         return response()->json([
     //             'message'=>'Aucune donnée n’a été trouvée !',
@@ -47,7 +47,7 @@ protected $categoryService;
      */
     public function create()
     {
-        //
+        
     }
 
     /**

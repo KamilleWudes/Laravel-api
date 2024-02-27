@@ -30,13 +30,13 @@ class ArticleController extends Controller
      */
     public function create()
     {
-        //
+
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorearticleRequest $request)
     {
         return $this->ArticleService->store($request);
 
@@ -63,7 +63,7 @@ class ArticleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdatearticleRequest $request, $id)
     {
         return $this->ArticleService->update($request, $id);
 
