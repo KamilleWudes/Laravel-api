@@ -23,26 +23,25 @@ class StorearticleRequest extends FormRequest
     {
         return [
             'titre' => ['required', 'min:3'],
-            'contenu'=>['required','min:5'],
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'categorie_id' => 'required',
-            'user_id' => 'required'
+            'contenu' => ['required', 'min:5'],
+            'content' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'categorie_id' => ['required', 'exists:categories,id'],
         ];
-       
     }
 
     public function messages()
     {
-        return[
-          'title.required' => "Le titre est obligatoire",
-          'title.min' => "Le titre doit contenir au moins 3 caractères",
-          'contenu.required' => "Le contenu de l'article est obligatoire",
-          'contenu.min' => "Le contenu de l'article doit contenir au moins 5 caractères",
-          'image.required' => "L'image est obligatoire",
-          'image.file' => "Veuillez envoyer un fichier valide (jpg/png/gif)",
-          'image.max' => "La taille du fichier image ne peut pas dépasser 1 Mo",
-          'categorie_id.required' => "La catégorie est obligatoire" ,
-          'user_id.required' => "L'auteur est obligatoire"
-       ] ;
-   }
+        return [
+            'titre.required' => "Le titre est obligatoire",
+            'titre.min' => "Le titre doit contenir au moins 3 caractères",
+            'contenu.required' => "Le contenu de l'article est obligatoire",
+            'contenu.min' => "Le contenu de l'article doit contenir au moins 5 caractères",
+            'content.required' => "L'image est obligatoire",
+            'content.image' => "Envoyer un image",
+            'content.mimes' => "Veuillez envoyer un fichier valide (jpg/png/gif)",
+            'content.max' => "La taille du fichier image ne peut pas dépasser 1 Mo",
+            'categorie_id.required' => "La catégorie est obligatoire",
+            'categorie_id.exists' => "La catégorie n'existe pas ",
+        ];
+    }
 }

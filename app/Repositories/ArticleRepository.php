@@ -12,5 +12,9 @@ class ArticleRepository extends BaseRepository
     {
         parent::__construct($article);
     }
-    
+
+    public function getByIdWithCategories($id)
+    {
+        return article::with('categories')->find($id);
+    }
 }

@@ -22,7 +22,20 @@ class UpdatecategorieRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'libelle' => 'nullable', // Ajoutez d'autres règles de validation au besoin
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'libelle' => 'nom', // Assurez-vous que cela correspond à l'utilisation réelle dans vos vues ou contrôleurs
         ];
     }
 }

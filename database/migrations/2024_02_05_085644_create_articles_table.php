@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -15,13 +16,11 @@ return new class extends Migration
             $table->id();
             $table->string('titre');
             $table->text('contenu');
-            $table->string('image');
+            $table->string('imageName');
             $table->foreignId('categorie_id')->constrained('categories');
-            $table->foreignId('user_id')->constrained('users');
-
             $table->timestamps();
         });
-        Schema::enableForeignKeyConstraints();
+        DB::statement("ALTER TABLE articles ADD content LONGBLOB NULL");
     }
 
     /**
@@ -29,9 +28,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
-            $table->dropForeign(["categorie_id","user_id"]);
-        });
+
         Schema::dropIfExists('articles');
     }
 };
