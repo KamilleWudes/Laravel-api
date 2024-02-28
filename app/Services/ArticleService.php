@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\article\ArticleResource;
 use Exception;
 use Illuminate\Http\Request;
 use App\Repositories\ArticleRepository;
@@ -24,19 +25,10 @@ class ArticleService
      */
     public function getAll()
     {
-        $articles = $this->ArticleRepository->getAll();
-        if ($articles->count() > 0) {
-            return response()->json([
-                "status" => 200,
-                "articles" => $articles,
-            ], 200);
-        } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Aucune article n’a été trouvée !',
-            ], 404);
-        }
+        return ArticleResource::collection($this->ArticleRepository->getAll());
+
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -52,7 +44,7 @@ class ArticleService
             $dataArticle = $request->only([
                 'titre',
                 'contenu',
-                'categorie_id'
+                'category_id'
             ]);
             $image = $request['content'];
             $content = $image->getClientOriginalName();
@@ -66,7 +58,7 @@ class ArticleService
         } catch (Exception $e) {
             $result = [
                 'status' => 500,
-                'error' => $e->getMessage()
+                'message' =>"erreur lors de l'enregistrement de l'article"
             ];
         }
         return response()->json($result);
@@ -74,26 +66,8 @@ class ArticleService
 
     public function show($id)
     {
-        $article = $this->ArticleRepository->getByIdWithCategories($id);
+        return new  ArticleResource($this->ArticleRepository->find($id));
 
-        if ($article) {
-            // Récupérer le nom de la catégorie
-            $categoryName = $article->categories->libelle; // Supposons que 'name' soit le nom de la colonne contenant le libellé de la catégorie
-
-            // Ajouter le libellé de la catégorie à la variable $article
-            $article->category_name = $categoryName;
-
-            // Retourner la réponse JSON avec la variable $article mise à jour
-            return response()->json([
-                'status' => 200,
-                'article' => $article,
-            ], 200);
-        } else {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Article Introuvable',
-            ], 404);
-        }
     }
 
     public function edit($id)
@@ -114,18 +88,18 @@ class ArticleService
     public function update(Request $request, $id)
     {
 
+        $articleData = $this->ArticleRepository->find($id);
         $result = [
             'status' => 200,
             'message' => 'Article mis à jour avec succès'
         ];
-        $article = $this->ArticleRepository->getByIdWithCategories($id);
 
-        if (is_null($article)) {
+        if (is_null($articleData)) {
             return response()->json(['message' => "Cette Information  n'existe pas", 'status' => 404]);
         }
 
 
-        $dataArticle = $request->only(['titre', 'contenu', 'categorie_id']);
+        $dataArticle = $request->only(['titre', 'contenu', 'category_id']);
         if ($request->file('content')) {
             // Le contenu est un fichier valide
             $image = $request->file('content');
@@ -134,15 +108,13 @@ class ArticleService
             $dataArticle['imageName'] = $imageName;
             $dataArticle['content'] = base64_encode(file_get_contents($image));
         } else {
-            $dataArticle['content'] = $article->content;
-            $dataArticle['imageName'] = $article->imageName;
+            $dataArticle['content'] = $articleData['content'];
+            $dataArticle['imageName'] = $articleData['imageName'];
         }
 
         $this->ArticleRepository->update($dataArticle, $id);
-        $article = $this->ArticleRepository->getByIdWithCategories($id);
-        $categoryName = $article->categories->libelle; // Supposons que 'name' soit le nom de la colonne contenant le libellé de la catégorie
-        // Ajouter le libellé de la catégorie à la variable $article
-        $article->category_name = $categoryName;
+        $article = $this->ArticleRepository->find($id);// Supposons que 'name' soit le nom de la colonne contenant le libellé de la catégorie
+        // Ajouter le libellé de la catégorie à la
         $result['data'] = $article;
 
         return response()->json($result);

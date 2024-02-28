@@ -25,7 +25,7 @@ class UpdatearticleRequest extends FormRequest
             'titre' => ['nullable', 'min:3'],
             'contenu' => ['nullable', 'min:5'],
             'content' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'categorie_id' => 'nullable',
+            'category_id' => 'nullable',
         ];
         if ($this->hasFile('content')) {
             $rules['content'] = ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'];
@@ -46,7 +46,7 @@ class UpdatearticleRequest extends FormRequest
             'content.nullable' => "L'image est obligatoire",
             'content.file' => "Veuillez envoyer un fichier valide (jpg/png/gif)",
             'content.max' => "La taille du fichier image ne peut pas dépasser 1 Mo",
-            'categorie_id.nullable' => "La catégorie est obligatoire",
+            'category_id.nullable' => "La catégorie est obligatoire",
         ];
     }
 
@@ -56,7 +56,7 @@ class UpdatearticleRequest extends FormRequest
             'content' =>  "image",
             'titre' =>  "titre",
             'contenu' =>  "contenu",
-            'categorie_id' =>  "categorie",
+            'category_id' =>  "categorie",
 
         ];
     }

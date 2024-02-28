@@ -2,23 +2,22 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use App\Models\categorie;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class article extends Model
+class Article extends Model
 {
     use HasFactory;
     protected $fillable = [
-      'titre',
-      'contenu',
-      'content',
-      'categorie_id',
-      'imageName',
+        'titre',
+        'contenu',
+        'content',
+        'category_id',
+        'imageName',
     ];
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 
-    Public function categories(){
-        return $this->belongsTo(categorie::class,"categorie_id","id");
-      }
 }

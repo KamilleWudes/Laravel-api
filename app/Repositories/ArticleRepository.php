@@ -2,19 +2,15 @@
 
 namespace App\Repositories;
 
-use App\Models\article;
+use App\Models\Article;
 use App\Repositories\Base\BaseRepository;
 
 class ArticleRepository extends BaseRepository
 {
     protected $article;
-    public function __construct(article $article)
+    public function __construct(Article $article)
     {
         parent::__construct($article);
     }
 
-    public function getByIdWithCategories($id)
-    {
-        return article::with('categories')->find($id);
-    }
 }

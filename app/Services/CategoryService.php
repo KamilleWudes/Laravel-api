@@ -104,11 +104,11 @@ class CategoryService
         $categorie = $this->categoryRepository->find($id);
 
         if ($categorie) {
-            $updateCategorie = $this->categoryRepository->update($request->all(), $id);
+             $this->categoryRepository->update($request->all(), $id);
             $result['data'] = $this->categoryRepository->find($id);
             return response()->json([
                 'status' => 200,
-                'messages' => 'Mise a jour categorie réussie',
+                'message' => 'Mise a jour categorie réussie',
                 'data' => $result['data'],
 
             ], 200);

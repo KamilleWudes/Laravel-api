@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('titre');
             $table->text('contenu');
             $table->string('imageName');
-            $table->foreignId('categorie_id')->constrained('categories');
+            $table->foreignId('category_id')->constrained('categories');
             $table->timestamps();
         });
         DB::statement("ALTER TABLE articles ADD content LONGBLOB NULL");
