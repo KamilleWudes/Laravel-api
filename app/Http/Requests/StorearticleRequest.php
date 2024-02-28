@@ -25,7 +25,7 @@ class StorearticleRequest extends FormRequest
             'titre' => ['required', 'min:3'],
             'contenu' => ['required', 'min:5'],
             'content' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'categorie_id' => ['required', 'exists:categories,id'],
+            'category_id' => ['required', 'exists:categories,id'],
         ];
     }
 
@@ -40,8 +40,8 @@ class StorearticleRequest extends FormRequest
             'content.image' => "Envoyer un image",
             'content.mimes' => "Veuillez envoyer un fichier valide (jpg/png/gif)",
             'content.max' => "La taille du fichier image ne peut pas dépasser 1 Mo",
-            'categorie_id.required' => "La catégorie est obligatoire",
-            'categorie_id.exists' => "La catégorie n'existe pas ",
+            'category_id.required' => "La catégorie est obligatoire",
+            'category_id.exists' => "La catégorie n'existe pas ",
         ];
     }
 }
